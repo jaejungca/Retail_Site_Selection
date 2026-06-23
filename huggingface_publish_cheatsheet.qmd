@@ -1,0 +1,115 @@
+---
+title: "Publishing an HTML File to Hugging Face Spaces"
+subtitle: "Step-by-step cheat sheet"
+author: "IBM 6300 / IBM 6540"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    embed-resources: true
+---
+
+## One-Time Setup (do this only once per project)
+
+### 1. Create a Hugging Face Access Token
+1. Go to **huggingface.co** → log in
+2. Profile picture (top right) → **Settings** → **Access Tokens**
+3. Click **New token** → name it anything → set role to **Write**
+4. Copy the token and save it somewhere safe — you won't see it again
+
+### 2. Create a New Space
+1. Go to **huggingface.co/new-space**
+2. Give it a name (e.g. `huff-model`)
+3. Set SDK to **Static**
+4. Click **Create Space**
+
+### 3. Clone the Space to Your Computer
+In your terminal, navigate to where you want the folder, then:
+```bash
+git clone https://huggingface.co/spaces/yourusername/yourspacename
+cd yourspacename
+```
+
+### 4. Configure git to Store Credentials (one time only)
+```bash
+git config --global credential.helper store
+```
+
+---
+
+## Every Time You Want to Publish / Update
+
+### Step 1 — Copy your HTML file into the cloned folder
+- Name it **`index.html`** — this is what Hugging Face serves by default
+- If your file has a different name, rename it to `index.html`
+
+### Step 2 — Open the folder in your terminal
+Make sure your terminal is in the right folder:
+```bash
+cd "full\path\to\yourspacename"
+```
+Or open the project in Positron — the terminal will be set automatically.
+
+### Step 3 — Check what has changed
+```bash
+git status
+```
+You should see your `index.html` listed as modified or new.
+
+### Step 4 — Stage, commit, and push
+```bash
+git add index.html
+git commit -m "update"
+git push
+```
+When prompted for credentials:
+
+- **Username**: your Hugging Face username
+- **Password**: paste your **access token** (not your actual password)
+
+### Step 5 — View your page
+```
+https://huggingface.co/spaces/yourusername/yourspacename
+```
+
+---
+
+## Quick Diagnostic Commands
+
+| Problem | Command to run | What to look for |
+|---|---|---|
+| Am I in the right folder? | `git remote -v` | Should show `huggingface.co` URL |
+| Were my changes committed? | `git log --oneline -3` | Your latest commit message |
+| Are there uncommitted changes? | `git status` | Should say "nothing to commit" after pushing |
+
+---
+
+## Common Mistakes to Avoid
+
+- **Wrong folder in terminal** — always check `git remote -v` first to confirm you're in the right repo
+- **Entering password instead of access token** — the password field always takes the token, not your HF password
+- **File not named index.html** — Hugging Face Static Spaces won't know what to serve otherwise
+- **Forgetting to `git add` before `git commit`** — changes not staged won't be included in the commit
+
+---
+
+## Credentials Troubleshooting (Windows 11)
+
+If git keeps asking for credentials even after entering them:
+```bash
+git config --global credential.helper store
+```
+
+If you entered the wrong credentials and need to clear them:
+
+1. Search **Credential Manager** in Start menu
+2. Click **Windows Credentials** tab
+3. Find and remove the `git:https://huggingface.co` entry
+
+If Windows Credentials are disabled by your system administrator:
+```bash
+git config --global credential.helper store
+```
+This saves credentials to `C:\Users\yourusername\.git-credentials` instead, bypassing the restriction.
