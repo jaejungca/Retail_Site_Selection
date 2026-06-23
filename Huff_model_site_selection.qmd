@@ -1,0 +1,129 @@
+---
+title: "Site Selection Exercise"
+author: "Jae Jung"
+date: today
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    toc-expand: 1
+    code-fold: true
+    number-sections: true
+    number-depth: 2
+    embed-resources: true
+execute: 
+  freeze: true
+editor: visual
+---
+
+# Packages
+
+```{r}
+library(tidyverse)
+#install.packages("gt")
+library(gt)
+theme_set(theme_minimal())
+```
+
+# Huff's model
+
+![](images/clipboard-3639382016.png)(Huff_model_formula.png){width="1000"}
+
+# Scenario setup
+
+```{r}
+shopping_center <- c("University Park", "Old Town", "The Falls")
+size <- c(1000000, 100000, 500000)
+travel_distance <- c(3, 1, 5)
+b <- c(2, 2, 2)
+
+df <- tibble(shopping_center, size, travel_distance, b)
+
+df
+```
+
+# Probability of shopping at a shopping center
+
+```{r}
+df <- df |>
+  mutate(s_t_ratio = size / (travel_distance^b))
+
+df <- df |>
+  mutate(s_t_ratio_sum = sum(s_t_ratio))
+
+df <- df |>
+  mutate(probability = s_t_ratio / s_t_ratio_sum)
+
+
+df |>
+  gt() |>
+  tab_header(
+    title = md(
+      "**Probability of a University Student Shopping for Shoes in Shopping Centers**"
+    ),
+    subtitle = md("*Which shopping center is best to start shoes store in?*")
+  ) |>
+  fmt_number(columns = c(size, s_t_ratio, s_t_ratio_sum), decimals = 0) |>
+  fmt_percent(columns = probability, decimals = 0) |>
+  tab_footnote(
+    footnote = "size in square feet",
+    locations = cells_body(columns = size)
+  ) |>
+  tab_footnote(
+    footnote = "travel distance in miles",
+    locations = cells_body(columns = travel_distance, rows = 1:3)
+  ) |>
+  tab_footnote(
+    footnote = "b = exponent of travel distance",
+    locations = cells_body(columns = b)
+  )
+```
+
+# Estimated Sales from the University Students
+
+::: callout-note
+## Background Information
+
+-   There are 20,000 students attending the university
+
+-   Assume that students spend \$300 for shoes a year
+
+-   How much sales can you get if you start your shoe store in the University Park shopping center?
+:::
+
+```{r}
+df_sales <- df |>
+  mutate(sales = probability * 20000 * 300)
+
+df_sales |>
+  gt() |>
+  tab_header(
+    title = md("**Estimated Sales from Shoes Store at each Shopping Center**"),
+    subtitle = md("*Which shopping center is best to start shoes store in?*")
+  ) |>
+  fmt_number(columns = c(size, s_t_ratio, s_t_ratio_sum), decimals = 0) |>
+  fmt_percent(columns = probability, decimals = 0) |>
+  tab_footnote(
+    footnote = "size in square feet",
+    locations = cells_body(columns = size)
+  ) |>
+  tab_footnote(
+    footnote = "travel distance in miles",
+    locations = cells_body(columns = travel_distance, rows = 1:3)
+  ) |>
+  tab_footnote(
+    footnote = "b = exponent of travel distance",
+    locations = cells_body(columns = b)
+  ) |>
+  fmt_currency(columns = sales, decimals = 0) |>
+  tab_footnote(
+    footnote = "sales = probability * 20,000 students * $300/student",
+    locations = cells_body(columns = sales)
+  )
+```
+
+# Reference
+
+-   Introduction to gt table, <https://gt.rstudio.com/articles/gt.html#a-walkthrough-of-the-gt-basics-with-a-simple-table>
+
+-   Posit Cloud test drive for gt Table, <https://rstudio.cloud/project/779965>
